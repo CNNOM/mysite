@@ -1,0 +1,16 @@
+<h1>{{ question.question_text }}</h1>
+
+<ul>
+{% for choice in question.choice_set.all %}
+    <li>
+        {{ choice.choice_text }} — {{ choice.vote_set.count }} голосов
+        <ul>
+        {% for vote in choice.vote_set.all %}
+            <li>{{ vote.voter_name|default:"Аноним" }} ({{ vote.vote_date }})</li>
+        {% endfor %}
+        </ul>
+    </li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'index' %}">К списку опросов</a>
