@@ -10,27 +10,37 @@ def poll_detail(request, poll_id):
     poll = get_object_or_404(Poll, pk=poll_id)
     questions = poll.questions.all().order_by('poll_questions__order')
     
-    # Создаем список форм для каждого вопроса
     forms = []
     for question in questions:
         form = VoteForm(question=question)
         forms.append((question, form))
     
-    # Обработка POST запросов
     if request.method == 'POST':
-        # Находим вопрос по ID из скрытого поля
-        question_id = request.POST.get('question_id')
-        question = get_object_or_404(Question, pk=question_id)
-        form = VoteForm(request.POST, question=question)
+        voter_name = request.POST.get('voter_name', '').strip() or None
         
-        if form.is_valid():
-            vote = form.save(commit=False)
-            vote.save()
+        # Проверяем, что на все вопросы есть ответы
+        all_answered = True
+        votes_to_create = []
+        
+        for question in questions:
+            choice_id = request.POST.get(f'question_{question.id}', None)
+            if not choice_id:
+                all_answered = False
+                break
+                
+            choice = Choice.objects.get(pk=choice_id)
+            votes_to_create.append(Vote(
+                choice=choice,
+                voter_name=voter_name
+            ))
+        
+        if all_answered and votes_to_create:
+            Vote.objects.bulk_create(votes_to_create)
             return redirect('poll_results', poll_id=poll.id)
     
     return render(request, 'polls/poll_detail.html', {
         'poll': poll,
-        'forms': forms  # Передаем список кортежей (вопрос, форма)
+        'forms': forms
     })
 
 

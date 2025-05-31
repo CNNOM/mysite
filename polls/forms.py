@@ -1,26 +1,16 @@
 from django import forms
-from .models import Question, Choice, Vote
+from .models import Choice
 
-class VoteForm(forms.ModelForm):
-    class Meta:
-        model = Vote
-        fields = ['voter_name', 'choice']
-        widgets = {
-            'voter_name': forms.TextInput(attrs={
-                'placeholder': 'Ваше имя (необязательно)',
-                'class': 'form-control'
-            }),
-            'choice': forms.RadioSelect(attrs={
-                'class': 'form-check-input'
-            })
-        }
-        required = {
-            'voter_name': False,
-        }
+class VoteForm(forms.Form):
+    choice = forms.ModelChoiceField(
+        queryset=Choice.objects.none(),
+        widget=forms.RadioSelect,
+        empty_label=None,
+        required=True
+    )
 
     def __init__(self, *args, **kwargs):
         question = kwargs.pop('question', None)
         super().__init__(*args, **kwargs)
         if question:
-            self.fields['choice'].queryset = Choice.objects.filter(question=question)
-            self.fields['choice'].label = ""  # Убираем label для вариантов ответа
+            self.fields['choice'].queryset = question.choices.all()

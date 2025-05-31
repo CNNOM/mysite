@@ -1,18 +1,37 @@
 <h1>{{ poll.title }}</h1>
 <p>{{ poll.description }}</p>
 
-<h2>Вопросы:</h2>
 <form method="post">
     {% csrf_token %}
+    
+    <!-- Единое поле для имени в начале опроса -->
+    <div class="form-group">
+        <label for="voter_name">Ваше имя (необязательно):</label>
+        <input type="text" name="voter_name" id="voter_name" 
+               class="form-control" placeholder="Можно оставить пустым">
+    </div>
+
+    <h2>Вопросы:</h2>
     {% for question, form in forms %}
-        <div style="margin-bottom: 30px; border: 1px solid #eee; padding: 15px;">
-            <h3>{{ question.question_text }}</h3>
-            <input type="hidden" name="question_id" value="{{ question.id }}">
-            {{ form.as_p }}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="card-title">{{ question.question_text }}</h3>
+                <input type="hidden" name="question_{{ question.id }}" value="">
+                {% for choice in form.fields.choice.queryset %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" 
+                               name="question_{{ question.id }}" 
+                               id="choice_{{ choice.id }}" 
+                               value="{{ choice.id }}">
+                        <label class="form-check-label" for="choice_{{ choice.id }}">
+                            {{ choice.choice_text }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     {% endfor %}
-    <button type="submit">Проголосовать</button>
+    
+    <button type="submit" class="btn btn-primary">Отправить ответы</button>
+    <a href="{% url 'index' %}" class="btn btn-link">К списку опросов</a>
 </form>
-
-<a href="{% url 'poll_results' poll.id %}">Посмотреть результаты</a>
-<a href="{% url 'index' %}">К списку опросов</a>
