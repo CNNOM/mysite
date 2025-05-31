@@ -1,0 +1,18 @@
+<h1>{{ poll.title }}</h1>
+<p>{{ poll.description }}</p>
+
+<h2>Вопросы:</h2>
+<form method="post">
+    {% csrf_token %}
+    {% for question, form in forms %}
+        <div style="margin-bottom: 30px; border: 1px solid #eee; padding: 15px;">
+            <h3>{{ question.question_text }}</h3>
+            <input type="hidden" name="question_id" value="{{ question.id }}">
+            {{ form.as_p }}
+        </div>
+    {% endfor %}
+    <button type="submit">Проголосовать</button>
+</form>
+
+<a href="{% url 'poll_results' poll.id %}">Посмотреть результаты</a>
+<a href="{% url 'index' %}">К списку опросов</a>

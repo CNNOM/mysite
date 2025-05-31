@@ -1,0 +1,19 @@
+<h1>Результаты опроса: {{ poll.title }}</h1>
+
+{% for question in poll.questions.all %}
+    <h2>{{ question.question_text }}</h2>
+    <ul>
+    {% for choice in question.choice_set.all %}
+        <li>
+            {{ choice.choice_text }} — {{ choice.vote_set.count }} голосов
+            <ul>
+            {% for vote in choice.vote_set.all %}
+                <li>{{ vote.voter_name|default:"Аноним" }} ({{ vote.vote_date }})</li>
+            {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+    </ul>
+{% endfor %}
+
+<a href="{% url 'index' %}">К списку опросов</a>

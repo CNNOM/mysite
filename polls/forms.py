@@ -6,8 +6,13 @@ class VoteForm(forms.ModelForm):
         model = Vote
         fields = ['voter_name', 'choice']
         widgets = {
-            'voter_name': forms.TextInput(attrs={'placeholder': 'Ваше имя (необязательно)'}),
-            'choice': forms.RadioSelect()
+            'voter_name': forms.TextInput(attrs={
+                'placeholder': 'Ваше имя (необязательно)',
+                'class': 'form-control'
+            }),
+            'choice': forms.RadioSelect(attrs={
+                'class': 'form-check-input'
+            })
         }
         required = {
             'voter_name': False,
@@ -18,3 +23,4 @@ class VoteForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if question:
             self.fields['choice'].queryset = Choice.objects.filter(question=question)
+            self.fields['choice'].label = ""  # Убираем label для вариантов ответа
